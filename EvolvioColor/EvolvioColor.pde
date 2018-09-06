@@ -29,7 +29,7 @@ final String INITIAL_FILE_NAME = "DEFAULT";
 void setup() {
   colorMode(HSB,1.0);
   font = loadFont("Jygquip1-48.vlw");
-  size(WINDOW_WIDTH, WINDOW_HEIGHT);
+  size(1920, 1080);
   evoBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT, NOISE_STEP_SIZE, MIN_TEMPERATURE, MAX_TEMPERATURE, 
   ROCKS_TO_ADD, CREATURE_MINIMUM, SEED, INITIAL_FILE_NAME, TIME_STEP);
   resetZoom();
