@@ -149,6 +149,6 @@ class SoftBody {
   }
   
   public double getMass() {
-    return energy/ENERGY_DENSITY*density;
+    return energy / ENERGY_DENSITY * density;
   }
 }

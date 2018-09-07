@@ -55,15 +55,10 @@ class Creature extends SoftBody {
       axons = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
       neurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
       
-      for(int x = 0; x < BRAIN_WIDTH-1; x++) {
+      for(int x = 0; x < BRAIN_WIDTH - 1; x++) {
         for(int y = 0; y < BRAIN_HEIGHT; y++) {
-          for(int z = 0; z < BRAIN_HEIGHT-1; z++) {
-            double startingWeight = 0;
-            
-            if(y == BRAIN_HEIGHT-1) {
-              startingWeight = (Math.random() * 2 - 1) * STARTING_AXON_VARIABILITY;
-            }
-            
+          for(int z = 0; z < BRAIN_HEIGHT - 1; z++) {
+            double startingWeight = (Math.random() * 2 - 1) * STARTING_AXON_VARIABILITY;
             axons[x][y][z] = new Axon(startingWeight, AXON_START_MUTABILITY);
           }
         }
@@ -73,7 +68,7 @@ class Creature extends SoftBody {
       
       for(int x = 0; x < BRAIN_WIDTH; x++) {
         for(int y = 0; y < BRAIN_HEIGHT; y++) {
-          if(y == BRAIN_HEIGHT-1) {
+          if(y == BRAIN_HEIGHT - 1) {
             neurons[x][y] = 1;
           } else {
             neurons[x][y] = 0;
@@ -202,12 +197,12 @@ class Creature extends SoftBody {
     
     if(useOutput) {
       int end = BRAIN_WIDTH - 1;
-      hue = Math.min(Math.max(neurons[end][0], 0), 1);
-      mouthHue = Math.min(Math.max(neurons[end][1], 0), 1);
+      hue = Math.abs(neurons[end][0]) % 1.0;
+      mouthHue = Math.abs(neurons[end][1]) % 1.0;
       accelerate(neurons[end][2], timeStep);
       turn(neurons[end][3], timeStep);
       eat(neurons[end][4], timeStep);
-      fight(neurons[end][5], timeStep);
+      fight(neurons[end][5], timeStep * 100);
       
       if(neurons[end][6] > 0 && board.year - birthTime >= MATURE_AGE && energy > SAFE_SIZE) {
         reproduce(SAFE_SIZE, timeStep);
@@ -290,30 +285,33 @@ class Creature extends SoftBody {
     strokeWeight(2);
     stroke(0, 0, 1);
     ellipseMode(RADIUS);
-    ellipse((float)(px * scaleUp), (float)(py*scaleUp), (float)(board.MINIMUM_SURVIVABLE_SIZE * scaleUp), (float)(board.MINIMUM_SURVIVABLE_SIZE * scaleUp));
-    pushMatrix();
-    translate((float)(px * scaleUp), (float)(py * scaleUp));
-    scale((float)radius);
-    rotate((float)rotation);
-    strokeWeight((float)(2.0 / radius));
-    stroke(0, 0, 0);
-    fill((float)mouthHue, 1.0, 1.0);
-    ellipse(0.6 * scaleUp, 0, 0.37 * scaleUp, 0.37 * scaleUp);
+    ellipse((float)(px * scaleUp), (float)(py * scaleUp), (float)(board.MINIMUM_SURVIVABLE_SIZE * scaleUp), (float)(board.MINIMUM_SURVIVABLE_SIZE * scaleUp));
     
-    /*rect(-0.7 * scaleUp, -0.2 * scaleUp, 1.1 * scaleUp, 0.4 * scaleUp);
-    beginShape();
-    vertex(0.3 * scaleUp, -0.5 * scaleUp);
-    vertex(0.3 * scaleUp, 0.5 * scaleUp);
-    vertex(0.8 * scaleUp, 0.0 * scaleUp);
-    endShape(CLOSE);*/
-    
-    popMatrix();
+    if(radius > 0) {  // This is a temporary work-around to prevent the sketch from crashing when the radius is zero. This will be removed when the drawing code is revisited (hopefully soon).
+      pushMatrix();
+      translate((float)(px * scaleUp), (float)(py * scaleUp));
+      scale((float)radius);
+      rotate((float)rotation);
+      strokeWeight((float)(2.0 / radius));
+      stroke(0, 0, 0);
+      fill((float)mouthHue, 1.0, 1.0);
+      ellipse(0.6 * scaleUp, 0, 0.37 * scaleUp, 0.37 * scaleUp);
+      
+      /*rect(-0.7 * scaleUp, -0.2 * scaleUp, 1.1 * scaleUp, 0.4 * scaleUp);
+      beginShape();
+      vertex(0.3 * scaleUp, -0.5 * scaleUp);
+      vertex(0.3 * scaleUp, 0.5 * scaleUp);
+      vertex(0.8 * scaleUp, 0.0 * scaleUp);
+      endShape(CLOSE);*/
+      
+      popMatrix();
+    }
     
     if(showVision) {
       fill(0, 0, 1);
       textFont(font, 0.3 * scaleUp);
       textAlign(CENTER);
-      text(getCreatureName(), (float)(px * scaleUp), (float)((py - getRadius() * 1.4) * scaleUp));
+      text(getCreatureName(), (float)(px * scaleUp), (float)((py - radius * 1.4) * scaleUp));
     }
   }
   
@@ -421,7 +419,7 @@ class Creature extends SoftBody {
     for(int k = 0; k < visionAngles.length; k++) {
       double visionStartX = px;
       double visionStartY = py;
-      double visionTotalAngle = rotation+visionAngles[k];
+      double visionTotalAngle = rotation + visionAngles[k];
       
       double endX = getVisionEndX(k);
       double endY = getVisionEndY(k);
@@ -429,9 +427,9 @@ class Creature extends SoftBody {
       visionOccludedX[k] = endX;
       visionOccludedY[k] = endY;
       color c = getColorAt(endX, endY);
-      visionResults[k*3] = hue(c);
-      visionResults[k*3+1] = saturation(c);
-      visionResults[k*3+2] = brightness(c);
+      visionResults[k * 3] = hue(c);
+      visionResults[k * 3 + 1] = saturation(c);
+      visionResults[k * 3 + 2] = brightness(c);
       
       int tileX = 0;
       int tileY = 0;
@@ -488,7 +486,7 @@ class Creature extends SoftBody {
   public color getColorAt(double x, double y) {
     if(x >= 0 && x < board.boardWidth && y >= 0 && y < board.boardHeight) {
       return board.tiles[(int)x][(int)y].getColor();
-    }else{
+    } else {
       return board.BACKGROUND_COLOR;
     }
   }

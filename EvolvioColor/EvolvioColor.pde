@@ -69,7 +69,7 @@ void draw() {
   pushMatrix();
   scale(GROSS_OVERALL_SCALE_FACTOR);
   evoBoard.drawBlankBoard(SCALE_TO_FIX_BUG);
-  translate(BOARD_WIDTH*0.5*SCALE_TO_FIX_BUG, BOARD_HEIGHT*0.5*SCALE_TO_FIX_BUG);
+  translate(BOARD_WIDTH * 0.5 * SCALE_TO_FIX_BUG, BOARD_HEIGHT * 0.5 * SCALE_TO_FIX_BUG);
   scale(zoom);
   
   if(evoBoard.userControl && evoBoard.selectedCreature != null) {

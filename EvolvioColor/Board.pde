@@ -129,7 +129,7 @@ class Board {
     rect(0, 0, scaleUp * boardWidth, scaleUp * boardHeight);
   }
   
-  public void drawUI(float scaleUp,double timeStep, int x1, int y1, int x2, int y2, PFont font) {
+  public void drawUI(float scaleUp, double timeStep, int x1, int y1, int x2, int y2, PFont font) {
     fill(0, 0, 0);
     noStroke();
     rect(x1, y1, x2 - x1, y2 - y1);
