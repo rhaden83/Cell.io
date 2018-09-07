@@ -10,3 +10,5 @@ Cell.io is a neural-net-based evolution simulator. It's derived from Evolv.io by
 
 * [Original Evolv.io Repo](https://github.com/evolvio/evolv.io)
 * [New Multi-Repo Account for Evolv.io](https://github.com/evolvio4all)
+
+*Note: The two links above use the version of Evolv.io with tile optimization, while Cell.io is derived from the version of Evolv.io before tile optimization.*
