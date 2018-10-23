@@ -42,12 +42,12 @@ class Tile {
     stroke(0, 0, 0, 1);
     strokeWeight(2);
     
-    color landColor = getColor();
-    fill(landColor);
+    color tileColor = getColor();
+    fill(tileColor);
     rect(posX * scaleUp, posY * scaleUp, scaleUp, scaleUp);
     
-    if(showEnergy) {
-      if(brightness(landColor) >= 0.7) {
+    if(tileColor != waterColor && showEnergy) {
+      if(brightness(tileColor) >= 0.7) {
         fill(0, 0, 0, 1);
       } else {
         fill(0, 0, 1, 1);
