@@ -1,19 +1,20 @@
 class SoftBody {
+  final float ENERGY_DENSITY = 1.0 / (0.2 * 0.2 * PI); //set so when a creature is of minimum size, it equals one.
+  final float FRICTION = 0.03;
+  final float COLLISION_FORCE = 0.1;
+  final float FIGHT_RANGE = 2.0;
+  
   double px;
   double py;
   double vx;
   double vy;
   double energy;
-  final float ENERGY_DENSITY = 1.0 / (0.2 * 0.2 * PI); //set so when a creature is of minimum size, it equals one.
   double density;
   double hue;
   double saturation;
   double brightness;
   double birthTime;
   boolean isCreature = false;
-  final float FRICTION = 0.03;
-  final float COLLISION_FORCE = 0.1;
-  final float FIGHT_RANGE = 2.0;
   double fightLevel = 0;
   
   int prevSBIPMinX;
@@ -24,6 +25,7 @@ class SoftBody {
   int SBIPMinY;
   int SBIPMaxX;
   int SBIPMaxY;
+  
   ArrayList<SoftBody> colliders;
   Board board;
   

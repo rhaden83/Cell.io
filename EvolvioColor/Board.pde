@@ -24,7 +24,7 @@ class Board {
   ArrayList<SoftBody> rocks;
   ArrayList<Creature> creatures;
   Creature selectedCreature = null;
-  int creatureIDUpTo = 0;
+  long creatureIDUpTo = 0;
   float[] letterFrequencies = { 8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094, 6.966, 0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929, 0.095, 5.987, 6.327, 9.056, 2.758, 0.978, 2.361, 0.150, 1.974, 10000.0 };  //0.074};
   final int LIST_SLOTS = 6;
   int creatureRankMetric = 0;
@@ -157,11 +157,11 @@ class Board {
         int lookingAt = 0;
         
         if(creatureRankMetric == 4) {
-          while(lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].name.compareTo(creatures.get(i).name) < 0) {
+          while(lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].id < creatures.get(i).id) {
             lookingAt++;
           }
         } else if(creatureRankMetric == 5) {
-          while(lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].name.compareTo(creatures.get(i).name) >= 0) {
+          while(lookingAt < LIST_SLOTS && list[lookingAt] != null && list[lookingAt].id >= creatures.get(i).id) {
             lookingAt++;
           }
         } else {
@@ -208,7 +208,7 @@ class Board {
           }
           
           fill(0, 0, 1);
-          text(list[i].getCreatureName() + " [" + list[i].id + "] (" + toAge(list[i].birthTime) + ")", 90, y);
+          text(list[i].id + " (" + toAge(list[i].birthTime) + ")", 90, y);
           text("Energy: " + nf(100 * (float)(list[i].energy), 0, 2), 90, y + 25);
         }
       }
@@ -274,23 +274,22 @@ class Board {
       }
       
       fill(0, 0, 1);
-      text("Name: " + selectedCreature.getCreatureName(), 10, 225);
+      text("ID: " + selectedCreature.id, 10, 225);
       text("Energy: " + nf(100 * (float)selectedCreature.energy, 0, 2) + " yums", 10, 250);
       text("E Change: " + nf(100 * energyUsage, 0, 2) + " yums/year", 10, 275);
-      text("ID: " + selectedCreature.id, 10, 325);
-      text("X: " + nf((float)selectedCreature.px, 0, 2), 10, 350);
-      text("Y: " + nf((float)selectedCreature.py, 0, 2), 10, 375);
-      text("Rotation: "+nf((float)selectedCreature.rotation,0,2),10,400);
-      text("B-day: " + toDate(selectedCreature.birthTime), 10, 425);
-      text("(" + toAge(selectedCreature.birthTime) + ")", 10, 450);
-      text("Generation: " + selectedCreature.gen, 10, 475);
-      text("Parents: " + selectedCreature.parents, 10, 500, 210, 255);
-      text("Hue: " + nf((float)(selectedCreature.hue), 0, 2), 10, 550, 210, 255);
-      text("Mouth hue: " + nf((float)(selectedCreature.mouthHue), 0, 2), 10, 575, 210, 255);
+      text("X: " + nf((float)selectedCreature.px, 0, 2), 10, 325);
+      text("Y: " + nf((float)selectedCreature.py, 0, 2), 10, 350);
+      text("Rotation: " + nf((float)selectedCreature.rotation, 0, 2), 10, 375);
+      text("B-day: " + toDate(selectedCreature.birthTime), 10, 400);
+      text("(" + toAge(selectedCreature.birthTime) + ")", 10, 425);
+      text("Generation: " + selectedCreature.gen, 10, 450);
+      text("Parents: " + selectedCreature.parents, 10, 457.5, 210, 25);
+      text("Hue: " + nf((float)(selectedCreature.hue), 0, 2), 10, 500);
+      text("Mouth hue: " + nf((float)(selectedCreature.mouthHue), 0, 2), 10, 525);
       
       if(userControl) {
         text("Controls:\nUp/Down: Move\nLeft/Right: Rotate\nSpace: Eat\nF: Fight\nV: Vomit\nU,J: Change color" + "\nI,K: Change mouth color\nB: Give birth (Not possible if under "
-            + Math.round((MANUAL_BIRTH_SIZE + 1) * 100) + " yums)", 10, 625, 250, 400);
+            + Math.round((MANUAL_BIRTH_SIZE + 1) * 100) + " yums)", 10, 575, 250, 400);
       }
       
       pushMatrix();
@@ -555,7 +554,7 @@ class Board {
         c.reproduce(c.SAFE_SIZE, timeStep);
       } else {
         creatures.add(new Creature(random(0, boardWidth), random(0, boardHeight), 0, 0, random(MIN_CREATURE_ENERGY, MAX_CREATURE_ENERGY), 1, random(0, 1), 1, 1, this, year, random(0, 2 * PI),
-            0, "", "[PRIMORDIAL]", true, null, null, 1, random(0, 1)));
+            0, "[PRIMORDIAL]", null, null, 1, random(0, 1)));
       }
     }
   }

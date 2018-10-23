@@ -1,4 +1,16 @@
 class Creature extends SoftBody {
+  final int ENERGY_HISTORY_LENGTH = 6;
+  final double SAFE_SIZE = 1.25;
+  final double MATURE_AGE = 0.01;
+  final double STARTING_AXON_VARIABILITY = 1.0;
+  final double FOOD_SENSITIVITY = 0.3;
+  final int BRAIN_WIDTH = 3;
+  final int BRAIN_HEIGHT = 12;
+  final double AXON_START_MUTABILITY = 0.0005;
+  final int MIN_NAME_LENGTH = 3;
+  final int MAX_NAME_LENGTH = 10;
+  final float BRIGHTNESS_THRESHOLD = 0.7;
+  
   double ACCELERATION_ENERGY = 0.03;
   double ACCELERATION_BACK_ENERGY = 0.05;
   double SWIM_ENERGY = 0.008;
@@ -8,27 +20,15 @@ class Creature extends SoftBody {
   double FIGHT_ENERGY = 0.03;
   double INJURED_ENERGY = 0.25;
   double METABOLISM_ENERGY = 0.004;
-  String name;
   String parents;
   int gen;
-  int id;
+  long id;
   double MAX_VISION_DISTANCE = 10;
   double currentEnergy;
-  final int ENERGY_HISTORY_LENGTH = 6;
-  final double SAFE_SIZE = 1.25;
   double[] previousEnergy = new double[ENERGY_HISTORY_LENGTH];
-  final double MATURE_AGE = 0.01;
-  final double STARTING_AXON_VARIABILITY = 1.0;
-  final double FOOD_SENSITIVITY = 0.3;
   
   double vr = 0;
   double rotation = 0;
-  final int BRAIN_WIDTH = 3;
-  final int BRAIN_HEIGHT = 12;
-  final double AXON_START_MUTABILITY = 0.0005;
-  final int MIN_NAME_LENGTH = 3;
-  final int MAX_NAME_LENGTH = 10;
-  final float BRIGHTNESS_THRESHOLD = 0.7;
   Axon[][][] axons;
   double[][] neurons;
   
@@ -48,7 +48,7 @@ class Creature extends SoftBody {
   double mouthHue;
   
   public Creature(double tpx, double tpy, double tvx, double tvy, double tenergy, double tdensity, double thue, double tsaturation, double tbrightness, Board tb, double bt, double rot, double tvr,
-      String tname, String tparents, boolean mutateName, Axon[][][] tbrain, double[][] tneurons, int tgen, double tmouthHue) {
+      String tparents, Axon[][][] tbrain, double[][] tneurons, int tgen, double tmouthHue) {
     super(tpx, tpy, tvx, tvy, tenergy, tdensity, thue, tsaturation, tbrightness, tb, bt);
     
     if(tbrain == null) {
@@ -84,18 +84,6 @@ class Creature extends SoftBody {
     vr = tvr;
     isCreature = true;
     id = board.creatureIDUpTo + 1;
-    
-    if(tname.length() >= 1) {
-      if(mutateName) {
-        name = mutateName(tname);
-      } else {
-        name = tname;
-      }
-      
-      name = sanitizeName(name);
-    } else {
-      name = createNewName();
-    }
     
     parents = tparents;
     board.creatureIDUpTo++;
@@ -311,7 +299,7 @@ class Creature extends SoftBody {
       fill(0, 0, 1);
       textFont(font, 0.3 * scaleUp);
       textAlign(CENTER);
-      text(getCreatureName(), (float)(px * scaleUp), (float)((py - radius * 1.4) * scaleUp));
+      text(id, (float)(px * scaleUp), (float)((py - radius * 1.4) * scaleUp));
     }
   }
   
@@ -559,7 +547,7 @@ class Creature extends SoftBody {
         double newBrightness = 0;
         double newMouthHue = 0;
         int parentsTotal = parents.size();
-        String[] parentNames = new String[parentsTotal];
+        long[] parentIds = new long[parentsTotal];
         Axon[][][] newBrain = new Axon[BRAIN_WIDTH - 1][BRAIN_HEIGHT][BRAIN_HEIGHT - 1];
         double[][] newNeurons = new double[BRAIN_WIDTH][BRAIN_HEIGHT];
         float randomParentRotation = random(0, 1);
@@ -593,7 +581,7 @@ class Creature extends SoftBody {
           newSaturation += parent.saturation / parentsTotal;
           newBrightness += parent.brightness / parentsTotal;
           newMouthHue += parent.mouthHue / parentsTotal;
-          parentNames[i] = parent.name;
+          parentIds[i] = parent.id;
           
           if(parent.gen > highestGen) {
             highestGen = parent.gen;
@@ -602,142 +590,24 @@ class Creature extends SoftBody {
         
         newSaturation = 1;
         newBrightness = 1;
-        board.creatures.add(new Creature(newPX, newPY, 0, 0, babySize, density, newHue, newSaturation, newBrightness, board, board.year, random(0, 2 * PI), 0, stitchName(parentNames),
-            andifyParents(parentNames), true, newBrain, newNeurons, highestGen + 1, newMouthHue));
+        board.creatures.add(new Creature(newPX, newPY, 0, 0, babySize, density, newHue, newSaturation, newBrightness, board, board.year, random(0, 2 * PI), 0,
+            andifyParents(parentIds), newBrain, newNeurons, highestGen + 1, newMouthHue));
       }
     }
   }
   
-  public String stitchName(String[] s) {
-    String result = "";
-    
-    for(int i = 0; i < s.length; i++) {
-      float portion = (float)s[i].length() / s.length;
-      int start = (int)min(max(round(portion * i), 0), s[i].length());
-      int end = (int)min(max(round(portion * (i + 1)), 0), s[i].length());
-      result = result + s[i].substring(start, end);
-    }
-    
-    return result;
-  }
-  
-  public String andifyParents(String[] s) {
+  public String andifyParents(long[] s) {
     String result = "";
     
     for(int i = 0; i < s.length; i++) {
       if(i >= 1) {
-        result = result + " & ";
+        result += " & ";
       }
       
-      result = result + capitalize(s[i]);
+      result += s[i];
     }
     
     return result;
-  }
-  
-  public String createNewName() {
-    String nameSoFar = "";
-    int chosenLength = (int)random(MIN_NAME_LENGTH, MAX_NAME_LENGTH);
-    
-    for(int i = 0; i < chosenLength; i++) {
-      nameSoFar += getRandomChar();
-    }
-    
-    return sanitizeName(nameSoFar);
-  }
-  
-  public char getRandomChar() {
-    float letterFactor = random(0, 100);
-    int letterChoice = 0;
-    
-    while(letterFactor > 0) {
-      letterFactor -= board.letterFrequencies[letterChoice];
-      letterChoice++;
-    }
-    
-    return (char)(letterChoice + 96);
-  }
-  
-  public String sanitizeName(String input) {
-    String output = "";
-    int vowelsSoFar = 0;
-    int consonantsSoFar = 0;
-    
-    for(int i = 0; i < input.length(); i++) {
-      char ch = input.charAt(i);
-      
-      if(isVowel(ch)) {
-        consonantsSoFar = 0;
-        vowelsSoFar++;
-      } else {
-        vowelsSoFar = 0;
-        consonantsSoFar++;
-      }
-      
-      if(vowelsSoFar <= 2 && consonantsSoFar <= 2) {
-        output = output + ch;
-      }else{
-        double chanceOfAddingChar = 0.5;
-        
-        if(input.length() <= MIN_NAME_LENGTH) {
-          chanceOfAddingChar = 1.0;
-        }else if(input.length() >= MAX_NAME_LENGTH) {
-          chanceOfAddingChar = 0.0;
-        }
-        
-        if(random(0, 1) < chanceOfAddingChar) {
-          char extraChar = ' ';
-          
-          while(extraChar == ' ' || (isVowel(ch) == isVowel(extraChar))) {
-            extraChar = getRandomChar();
-          }
-          
-          output = output + extraChar + ch;
-          
-          if(isVowel(ch)) {
-            consonantsSoFar = 0;
-            vowelsSoFar = 1;
-          } else {
-            consonantsSoFar = 1;
-            vowelsSoFar = 0;
-          }
-        } else { // do nothing
-        }
-      }
-    }
-    
-    return output;
-  }
-  public String getCreatureName() {
-    return capitalize(name);
-  }
-  
-  public String capitalize(String n){
-    return n.substring(0, 1).toUpperCase()+n.substring(1, n.length());
-  }
-  
-  public boolean isVowel(char a) {
-    return (a == 'a' || a == 'e' || a == 'i' || a == 'o' || a == 'u' || a == 'y');
-  }
-  
-  public String mutateName(String input) {
-    if(input.length() >= 3) {
-      if(random(0, 1) < 0.2) {
-        int removeIndex = (int)random(0, input.length());
-        input = input.substring(0, removeIndex) + input.substring(removeIndex + 1, input.length());
-      }
-    }
-    
-    if(input.length() <= 9) {
-      if(random(0, 1) < 0.2) {
-        int insertIndex = (int)random(0, input.length() + 1);
-        input = input.substring(0, insertIndex) + getRandomChar() + input.substring(insertIndex, input.length());
-      }
-    }
-    
-    int changeIndex = (int)random(0, input.length());
-    input = input.substring(0, changeIndex) + getRandomChar() + input.substring(changeIndex + 1, input.length());
-    return input;
   }
   
   public void applyMotions(double timeStep) {
