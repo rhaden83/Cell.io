@@ -7,7 +7,7 @@ final int BOARD_HEIGHT = 100;
 final int WINDOW_WIDTH = 1920;
 final int WINDOW_HEIGHT = 1080;
 final float SCALE_TO_FIX_BUG = 100;
-final float GROSS_OVERALL_SCALE_FACTOR = ((float)WINDOW_HEIGHT)/BOARD_HEIGHT/SCALE_TO_FIX_BUG;
+final float GROSS_OVERALL_SCALE_FACTOR = ((float)WINDOW_HEIGHT) / BOARD_HEIGHT / SCALE_TO_FIX_BUG;
 
 final double TIME_STEP = 0.001;
 final float MIN_TEMPERATURE = -0.5;
@@ -16,9 +16,8 @@ final float MAX_TEMPERATURE = 1.0;
 final int ROCKS_TO_ADD = 0;
 final int CREATURE_MINIMUM = 60;
 
-float cameraX = BOARD_WIDTH*0.5;
-float cameraY = BOARD_HEIGHT*0.5;
-float cameraR = 0;
+float cameraX = BOARD_WIDTH * 0.5;
+float cameraY = BOARD_HEIGHT * 0.5;
 float zoom = 1;
 PFont font;
 int dragging = 0; // 0 = no drag, 1 = drag screen, 2 and 3 are dragging temp extremes.
@@ -61,9 +60,6 @@ void draw() {
   if(evoBoard.userControl && evoBoard.selectedCreature != null) {
     cameraX = (float)evoBoard.selectedCreature.px;
     cameraY = (float)evoBoard.selectedCreature.py;
-    cameraR = -PI / 2.0 - (float)evoBoard.selectedCreature.rotation;
-  } else {
-    cameraR = 0;
   }
   
   pushMatrix();
@@ -71,10 +67,6 @@ void draw() {
   evoBoard.drawBlankBoard(SCALE_TO_FIX_BUG);
   translate(BOARD_WIDTH * 0.5 * SCALE_TO_FIX_BUG, BOARD_HEIGHT * 0.5 * SCALE_TO_FIX_BUG);
   scale(zoom);
-  
-  if(evoBoard.userControl && evoBoard.selectedCreature != null) {
-    rotate(cameraR);
-  }
   
   translate(-cameraX * SCALE_TO_FIX_BUG, -cameraY * SCALE_TO_FIX_BUG);
   evoBoard.drawBoard(SCALE_TO_FIX_BUG, zoom, (int)toWorldXCoordinate(mouseX, mouseY), (int)toWorldYCoordinate(mouseX, mouseY));
@@ -204,7 +196,6 @@ void mouseReleased() {
       int x = (int)(floor(mX));
       int y = (int)(floor(mY));
       evoBoard.unselect();
-      cameraR = 0;
       
       if(x >= 0 && x < BOARD_WIDTH && y >= 0 && y < BOARD_HEIGHT) {
         for(int i = 0; i < evoBoard.softBodiesInPositions[x][y].size (); i++) {
@@ -247,12 +238,12 @@ float toWorldXCoordinate(float x, float y) {
   float w = WINDOW_HEIGHT / 2;
   float angle = atan2(y - w, x - w);
   float dist = dist(w, w, x, y);
-  return cameraX + grossify(cos(angle - cameraR) * dist + w, BOARD_WIDTH) / zoom;
+  return cameraX + grossify(cos(angle) * dist + w, BOARD_WIDTH) / zoom;
 }
 
 float toWorldYCoordinate(float x, float y) {
   float w = WINDOW_HEIGHT / 2;
   float angle = atan2(y - w, x - w);
   float dist = dist(w, w, x, y);
-  return cameraY + grossify(sin(angle-cameraR) * dist + w, BOARD_HEIGHT) / zoom;
+  return cameraY + grossify(sin(angle) * dist + w, BOARD_HEIGHT) / zoom;
 }
